@@ -42,8 +42,8 @@ public class MainActivity2 extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(values[0]);
-            textView.setText(values + "%");
+            progressBar.setProgress(values[0].intValue());
+            textView.setText(values[0].toString() + "%");
             super.onProgressUpdate(values);
         }
 
@@ -58,8 +58,7 @@ public class MainActivity2 extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             for(int i = 0 ;i <= 100 ; i++) {
                 SystemClock.sleep(10);
-                progressBar.setProgress(i);
-                textView.setText(i + "%");
+                publishProgress(i);
             }
             return null;
         }
