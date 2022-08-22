@@ -1,7 +1,11 @@
 package com.example.music_app;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +28,16 @@ public class MainActivity extends AppCompatActivity {
     int position = 0;
     Handler handler;
 
+
+
+
+    @Override
+    protected void onDestroy() {
+        Toast.makeText(MainActivity.this, "Exit",
+                Toast.LENGTH_LONG).show();
+        super.onDestroy();
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +95,17 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, "NOTIFY")
+                        .setSmallIcon(R.drawable.ic_baseline_pause_circle_filled_24)
+                        .setContentTitle("My notification")
+                        .setContentText("Much longer text that cannot fit one line...")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText("Much longer text that cannot fit one line..."))
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
 
+// notificationId is a unique int for each notification that you must define
+                notificationManager.notify(1, mBuilder.build());
             }
         });
         btnNext.setOnClickListener(new View.OnClickListener() {
@@ -89,9 +113,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(position >=0 && position <4 ){
                     skSong.setProgress(0);
-                    clearMediaPlayer();
                     position ++;
                     txtTitle.setText(arraySong.get(position).getTitle());
+
                 }
             }
         });
