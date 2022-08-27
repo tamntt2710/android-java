@@ -17,7 +17,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     TextView txtTitle, txtTimeSong, txtTimeTotal;
@@ -44,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         onInit();
         addSong();
+
         mediaPlayer = MediaPlayer.create(MainActivity.this, arraySong.get(position).getFile());
         txtTitle.setText(arraySong.get(position).getTitle());
-        txtTimeTotal.setText(String.valueOf(mediaPlayer.getDuration()));
+
+        txtTimeTotal.setText(parseMilisecond(mediaPlayer.getDuration()));
         skSong.setMax(mediaPlayer.getDuration());
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler(){
             public void handleMessage(Message message){
                 super.handleMessage(message);
-                txtTimeSong.setText(String.valueOf(message.arg1));
+                txtTimeSong.setText(parseMilisecond(message.arg1));
             }
         };
 
@@ -71,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 int x = (int) Math.ceil(progress / 1000f);
 
                 if (x == 0 && mediaPlayer != null && !mediaPlayer.isPlaying()) {
-                    clearMediaPlayer();
+                 //   clearMediaPlayer();
                     MainActivity.this.skSong.setProgress(0);
                 }
 
@@ -95,17 +101,28 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, "NOTIFY")
-                        .setSmallIcon(R.drawable.ic_baseline_pause_circle_filled_24)
-                        .setContentTitle("My notification")
-                        .setContentText("Much longer text that cannot fit one line...")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText("Much longer text that cannot fit one line..."))
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+               if(mediaPlayer != null ){
+                   if(mediaPlayer.isPlaying()){
+                       mediaPlayer.pause();
+                       skSong.setProgress(0);
+                       txtTimeSong.setText("00:00");
+                       btnPlay.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24);
+                   }
+                   } else {
+                   System.out.println("stop false");
+               }
 
-// notificationId is a unique int for each notification that you must define
-                notificationManager.notify(1, mBuilder.build());
+//                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this, "NOTIFY")
+//                        .setSmallIcon(R.drawable.ic_baseline_pause_circle_filled_24)
+//                        .setContentTitle("My notification")
+//                        .setContentText("Much longer text that cannot fit one line...")
+//                        .setStyle(new NotificationCompat.BigTextStyle()
+//                                .bigText("Much longer text that cannot fit one line..."))
+//                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+//                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+//
+//// notificationId is a unique int for each notification that you must define
+//                notificationManager.notify(1, mBuilder.build());
             }
         });
         btnNext.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
                     skSong.setProgress(0);
                     position ++;
                     txtTitle.setText(arraySong.get(position).getTitle());
+                    mediaPlayer = MediaPlayer.create(MainActivity.this, arraySong.get(position).getFile());
+                    txtTitle.setText(arraySong.get(position).getTitle());
+
+                    txtTimeTotal.setText(parseMilisecond(mediaPlayer.getDuration()));
+                    skSong.setMax(mediaPlayer.getDuration());
+                    btnPlay.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24);
 
                 }
             }
@@ -127,46 +150,55 @@ public class MainActivity extends AppCompatActivity {
                     skSong.setProgress(0);
                     position --;
                     txtTitle.setText(arraySong.get(position).getTitle());
+                    mediaPlayer = MediaPlayer.create(MainActivity.this, arraySong.get(position).getFile());
+                    txtTitle.setText(arraySong.get(position).getTitle());
+
+                    txtTimeTotal.setText(parseMilisecond(mediaPlayer.getDuration()));
+                    skSong.setMax(mediaPlayer.getDuration());
+                    btnPlay.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24);
                 }
             }
         });
     }
 
     private void doStart() {
-        if(mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            btnPlay.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24);
-        } else {
-            mediaPlayer.setVolume(0.5f, 0.5f);
-            mediaPlayer.setLooping(false);
-            mediaPlayer.start();
-            btnPlay.setBackgroundResource(R.drawable.ic_baseline_pause_circle_filled_24);
-        }
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                int total = mediaPlayer.getDuration();
-
-                while (mediaPlayer != null && mediaPlayer.isPlaying() && currentPosition < total) {
-                    try {
-                        Thread.sleep(1000);
-                        currentPosition = mediaPlayer.getCurrentPosition();
-                        Message msg = handler.obtainMessage();
-                        msg.arg1 = currentPosition;
-                        handler.sendMessage(msg);
-                    } catch (InterruptedException e) {
-                        return;
-                    } catch (Exception e) {
-                        return;
-                    }
-
-                    skSong.setProgress(currentPosition);
-
-                }
+        if(mediaPlayer != null) {
+            if( mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                btnPlay.setBackgroundResource(R.drawable.ic_baseline_play_circle_outline_24);
+            } else {
+                mediaPlayer.setVolume(50, 50);
+                mediaPlayer.setLooping(false);
+                mediaPlayer.start();
+                btnPlay.setBackgroundResource(R.drawable.ic_baseline_pause_circle_filled_24);
             }
-        });
-        thread.start();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    int total = mediaPlayer.getDuration();
+
+                    while (mediaPlayer != null && mediaPlayer.isPlaying() && currentPosition < total) {
+                        try {
+                            Thread.sleep(1000);
+                            currentPosition = mediaPlayer.getCurrentPosition();
+                            Message msg = handler.obtainMessage();
+                            msg.arg1 = currentPosition;
+                            handler.sendMessage(msg);
+                        } catch (InterruptedException e) {
+                            return;
+                        } catch (Exception e) {
+                            return;
+                        }
+
+                        skSong.setProgress(currentPosition);
+
+                    }
+                }
+            });
+            thread.start();
+
+        }
     }
 
     private void clearMediaPlayer() {
@@ -195,4 +227,12 @@ public class MainActivity extends AppCompatActivity {
         btnNext = findViewById(R.id.nextButton);
         btnStop = findViewById(R.id.stopButton);
     }
+
+  private String parseMilisecond (int milisecond){
+      DateFormat obj = new SimpleDateFormat("mm:ss");
+      // we create instance of the Date and pass milliseconds to the constructor
+      Date res = new Date(milisecond);
+      // now we format the res by using SimpleDateFormat
+      return obj.format(res);
+  }
 }

@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.DialogFragment;
+
 import com.example.qlsv.R;
 
 /**
@@ -13,7 +15,7 @@ import com.example.qlsv.R;
  * Use the {@link CreateStudentDialog#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CreateStudentDialog extends Fragment {
+public class CreateStudentDialog extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

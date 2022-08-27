@@ -1,5 +1,6 @@
-package com.example.qlsv;
+package com.example.qlsv.Features.UpdateStudentInfo;
 
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,12 +8,14 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.qlsv.R;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link StudentUpdateDialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StudentUpdateDialogFragment extends Fragment {
+public class StudentUpdateDialogFragment extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

@@ -25,12 +25,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Example of a call to a native method
         TextView tv = binding.sampleText;
-        tv.setText(stringFromJNI());
+        tv.setText(stringFromJNI()); // nhận các giá trị từ func .cpp
     }
 
     /**
      * A native method that is implemented by the 'ndk_android' native library,
      * which is packaged with this application.
      */
+    // Khai báo 1 func có cùng tên với .cpp-lib
     public native String stringFromJNI();
 }
